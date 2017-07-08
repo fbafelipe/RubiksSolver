@@ -1,0 +1,113 @@
+#ifndef DEFS_H
+#define DEFS_H
+
+typedef unsigned char Color;
+
+enum {
+	C_WHITE = 1, // left face
+	C_YELLOW = 1 << 1, // right face
+	C_BLUE = 1 << 2, // top face
+	C_GREEN = 1 << 3, // bottom face
+	C_RED = 1 << 4, // near face
+	C_ORANGE = 1 << 5 // far face
+};
+
+const unsigned int COLOR_COUNT = 6;
+
+enum Edge {
+	E_WHITE_BLUE = C_WHITE | C_BLUE,
+	E_WHITE_GREEN = C_WHITE | C_GREEN,
+	E_WHITE_RED = C_WHITE | C_RED,
+	E_WHITE_ORANGE = C_WHITE | C_ORANGE,
+	
+	E_YELLOW_BLUE = C_YELLOW | C_BLUE,
+	E_YELLOW_GREEN = C_YELLOW | C_GREEN,
+	E_YELLOW_RED = C_YELLOW | C_RED,
+	E_YELLOW_ORANGE = C_YELLOW | C_ORANGE,
+	
+	E_BLUE_RED = C_BLUE | C_RED,
+	E_BLUE_ORANGE = C_BLUE | C_ORANGE,
+	
+	E_GREEN_RED = C_GREEN | C_RED,
+	E_GREEN_ORANGE = C_GREEN | C_ORANGE
+};
+
+enum Corner {
+	CO_WHITE_BLUE_RED = C_WHITE | C_BLUE | C_RED,
+	CO_WHITE_BLUE_ORANGE = C_WHITE | C_BLUE | C_ORANGE,
+	CO_WHITE_GREEN_RED = C_WHITE | C_GREEN | C_RED,
+	CO_WHITE_GREEN_ORANGE = C_WHITE | C_GREEN | C_ORANGE,
+	
+	CO_YELLOW_BLUE_RED = C_YELLOW | C_BLUE | C_RED,
+	CO_YELLOW_BLUE_ORANGE = C_YELLOW | C_BLUE | C_ORANGE,
+	CO_YELLOW_GREEN_RED = C_YELLOW | C_GREEN | C_RED,
+	CO_YELLOW_GREEN_ORANGE = C_YELLOW | C_GREEN | C_ORANGE,
+};
+
+enum Face {
+	F_LEFT = 0,
+	F_RIGHT,
+	F_TOP,
+	F_BOTTOM,
+	F_NEAR,
+	F_FAR,
+	
+	F_COUNT
+};
+
+const Face TOP_FACE_MAP[F_COUNT] = {
+	F_TOP,
+	F_TOP,
+	F_FAR,
+	F_NEAR,
+	F_TOP,
+	F_TOP
+	
+};
+
+const Color FACE_COLOR_MAP[F_COUNT] = {
+	C_WHITE,
+	C_YELLOW,
+	C_BLUE,
+	C_GREEN,
+	C_RED,
+	C_ORANGE
+};
+
+const unsigned int FP_COUNT = 9;
+
+enum Rotation {
+	R_LEFT = 0,
+	R_RIGHT,
+	R_TOP,
+	R_BOTTOM,
+	R_NEAR,
+	R_FAR,
+	
+	R_LEFT_INVERSE,
+	R_RIGHT_INVERSE,
+	R_TOP_INVERSE,
+	R_BOTTOM_INVERSE,
+	R_NEAR_INVERSE,
+	R_FAR_INVERSE,
+	
+	R_COUNT
+};
+
+const Rotation INVERSE_ROTATION[R_COUNT] = {
+	R_LEFT_INVERSE,
+	R_RIGHT_INVERSE,
+	R_TOP_INVERSE,
+	R_BOTTOM_INVERSE,
+	R_NEAR_INVERSE,
+	R_FAR_INVERSE,
+	
+	R_LEFT,
+	R_RIGHT,
+	R_TOP,
+	R_BOTTOM,
+	R_NEAR,
+	R_FAR
+};
+
+#endif
