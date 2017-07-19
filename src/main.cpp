@@ -1,5 +1,7 @@
 #include "RubiksReader.h"
 #include "RubiksState.h"
+#include "SolutionOptimizer.h"
+#include "SolverAlgorithm.h"
 #include "SolverAStar.h"
 #include "SolverDepth.h"
 #include "Util.h"
@@ -8,22 +10,33 @@
 #include <cstdlib>
 
 
+#include <cassert>
+#include "RubiksGenerator.h"
+
+
 int main(int argc, char *argv[]) {
 	RubiksState rubiks;
-	readRubiks(rubiks);
+	
+	if (argc >= 2)
+		readRubiksFromFile(rubiks, argv[1]);
+	else
+		readRubiksFromStdin(rubiks);
 	
 	RotationList solution;
-	if (!solveAStar(solution, rubiks)) {
+	//if (!solveAStar(solution, rubiks)) {
+	if (!solveAlgorithm(solution, rubiks)) {
 		std::cerr << "Solution not found." << std::endl;
 		return -1;
 	}
 	
-	std::cout << "Solution found with " << solution.size() << " moves." << std::endl;
+	RotationList finalSolution;
+	optimizeSolution(finalSolution, solution, rubiks);
+	
+	std::cout << "Solution found with " << finalSolution.size() << " moves. (optimized from " << solution.size() << ")" << std::endl;
 	std::cout << "Look at red face, with blue top, then rotate this sequence:\n" << std::endl;
 	
-	for (RotationList::const_iterator it = solution.begin(); it != solution.end(); ++it) {
+	for (RotationList::const_iterator it = finalSolution.begin(); it != finalSolution.end(); ++it)
 		std::cout << *it << " ";
-	}
 	std::cout << std::endl;
 	
 	return 0;

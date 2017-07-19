@@ -3,6 +3,7 @@
 
 class RubiksState;
 
-void readRubiks(RubiksState & rubiks);
+void readRubiksFromStdin(RubiksState & rubiks);
+void readRubiksFromFile(RubiksState & rubiks, const char *file);
 
 #endif

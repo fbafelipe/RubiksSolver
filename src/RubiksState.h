@@ -15,6 +15,28 @@ public:
 	
 	void setColor(Color c, Face f, unsigned int i, unsigned int j);
 	
+	Edge getEdge(EdgePosition edgePos) const;
+	Corner getCorner(CornerPosition cornerPos) const;
+	
+	EdgePosition getEdgePosition(Edge edge) const;
+	CornerPosition getCornerPosition(Corner corner) const;
+	
+	Color getEdgeColor(EdgePosition edgePos, Face face) const;
+	Color getCornerColor(CornerPosition cornerPos, Face face) const;
+	
+	// check position and orientation
+	bool isEdgeCorrect(EdgePosition pos) const;
+	
+	// check only position
+	bool isEdgePosCorrect(EdgePosition pos) const;
+	
+	// check position and orientation
+	bool isCornerCorrect(CornerPosition pos) const;
+	
+	// check only position
+	bool isCornerPosCorrect(CornerPosition pos) const;
+	
+	RubiksState rotate(Rotation r, unsigned int times) const;
 	RubiksState rotate(Rotation r) const;
 	
 	RubiksState rotateLeft() const;

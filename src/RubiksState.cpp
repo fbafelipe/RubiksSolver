@@ -25,7 +25,248 @@ bool RubiksState::isComplete() const {
 	return true;
 }
 
-unsigned int RubiksState::heuristicDist() const {
+Edge RubiksState::getEdge(EdgePosition edgePos) const {
+	switch (edgePos) {
+		case P_TOP_LEFT:
+			return (Edge) (rubiks[F_TOP][1][0] | rubiks[F_LEFT][0][1]);
+		case P_TOP_RIGHT:
+			return (Edge) (rubiks[F_TOP][1][2] | rubiks[F_RIGHT][0][1]);
+		case P_TOP_NEAR:
+			return (Edge) (rubiks[F_TOP][2][1] | rubiks[F_NEAR][0][1]);
+		case P_TOP_FAR:
+			return (Edge) (rubiks[F_TOP][0][1] | rubiks[F_FAR][0][1]);
+	
+		case P_LEFT_NEAR:
+			return (Edge) (rubiks[F_LEFT][1][2] | rubiks[F_NEAR][1][0]);
+		case P_RIGHT_NEAR:
+			return (Edge) (rubiks[F_RIGHT][1][0] | rubiks[F_NEAR][1][2]);
+		case P_RIGHT_FAR:
+			return (Edge) (rubiks[F_RIGHT][1][2] | rubiks[F_FAR][1][0]);
+		case P_LEFT_FAR:
+			return (Edge) (rubiks[F_LEFT][1][0] | rubiks[F_FAR][1][2]);
+	
+		case P_BOTTOM_LEFT:
+			return (Edge) (rubiks[F_BOTTOM][1][0] | rubiks[F_LEFT][2][1]);
+		case P_BOTTOM_RIGHT:
+			return (Edge) (rubiks[F_BOTTOM][1][2] | rubiks[F_RIGHT][2][1]);
+		case P_BOTTOM_NEAR:
+			return (Edge) (rubiks[F_BOTTOM][0][1] | rubiks[F_NEAR][2][1]);
+		case P_BOTTOM_FAR:
+			return (Edge) (rubiks[F_BOTTOM][2][1] | rubiks[F_FAR][2][1]);
+	}
+	
+	abort();
+}
+
+Corner RubiksState::getCorner(CornerPosition cornerPos) const {
+	switch (cornerPos) {
+		case P_TOP_LEFT_NEAR:
+			return (Corner) (rubiks[F_TOP][2][0] | rubiks[F_LEFT][0][2] | rubiks[F_NEAR][0][0]);
+		case P_TOP_RIGHT_NEAR:
+			return (Corner) (rubiks[F_TOP][2][2] | rubiks[F_RIGHT][0][0] | rubiks[F_NEAR][0][2]);
+		case P_TOP_LEFT_FAR:
+			return (Corner) (rubiks[F_TOP][0][0] | rubiks[F_LEFT][0][0] | rubiks[F_FAR][0][2]);
+		case P_TOP_RIGHT_FAR:
+			return (Corner) (rubiks[F_TOP][0][2] | rubiks[F_RIGHT][0][2] | rubiks[F_FAR][0][0]);
+	
+		case P_BOTTOM_LEFT_NEAR:
+			return (Corner) (rubiks[F_BOTTOM][0][0] | rubiks[F_LEFT][2][2] | rubiks[F_NEAR][2][0]);
+		case P_BOTTOM_RIGHT_NEAR:
+			return (Corner) (rubiks[F_BOTTOM][0][2] | rubiks[F_RIGHT][2][0] | rubiks[F_NEAR][2][2]);
+		case P_BOTTOM_LEFT_FAR:
+			return (Corner) (rubiks[F_BOTTOM][2][0] | rubiks[F_LEFT][2][0] | rubiks[F_FAR][2][2]);
+		case P_BOTTOM_RIGHT_FAR:
+			return (Corner) (rubiks[F_BOTTOM][2][2] | rubiks[F_RIGHT][2][2] | rubiks[F_FAR][2][0]);
+	}
+	
+	abort();
+}
+
+EdgePosition RubiksState::getEdgePosition(Edge edge) const {
+	for (unsigned int i = 0; i < EDGE_COUNT; ++i) {
+		if (getEdge((EdgePosition) i) == edge)
+			return (EdgePosition) i;
+	}
+	
+	abort();
+}
+
+CornerPosition RubiksState::getCornerPosition(Corner corner) const {
+	for (unsigned int i = 0; i < CORNER_COUNT; ++i) {
+		if (getCorner((CornerPosition) i) == corner)
+			return (CornerPosition) i;
+	}
+	
+	abort();
+}
+
+Color RubiksState::getEdgeColor(EdgePosition edgePos, Face face) const {
+	switch (edgePos) {
+		case P_TOP_LEFT:
+			return face == F_TOP ? rubiks[F_TOP][1][0] : rubiks[F_LEFT][0][1];
+		case P_TOP_RIGHT:
+			return face == F_TOP ? rubiks[F_TOP][1][2] : rubiks[F_RIGHT][0][1];
+		case P_TOP_NEAR:
+			return face == F_TOP ? rubiks[F_TOP][2][1] : rubiks[F_NEAR][0][1];
+		case P_TOP_FAR:
+			return face == F_TOP ? rubiks[F_TOP][0][1] : rubiks[F_FAR][0][1];
+	
+		case P_LEFT_NEAR:
+			return face == F_LEFT ? rubiks[F_LEFT][1][2] : rubiks[F_NEAR][1][0];
+		case P_RIGHT_NEAR:
+			return face == F_RIGHT ? rubiks[F_RIGHT][1][0] : rubiks[F_NEAR][1][2];
+		case P_RIGHT_FAR:
+			return face == F_RIGHT ? rubiks[F_RIGHT][1][2] : rubiks[F_FAR][1][0];
+		case P_LEFT_FAR:
+			return face == F_LEFT ? rubiks[F_LEFT][1][0] : rubiks[F_FAR][1][2];
+	
+		case P_BOTTOM_LEFT:
+			return face == F_BOTTOM ? rubiks[F_BOTTOM][1][0] : rubiks[F_LEFT][2][1];
+		case P_BOTTOM_RIGHT:
+			return face == F_BOTTOM ? rubiks[F_BOTTOM][1][2] : rubiks[F_RIGHT][2][1];
+		case P_BOTTOM_NEAR:
+			return face == F_BOTTOM ? rubiks[F_BOTTOM][0][1] : rubiks[F_NEAR][2][1];
+		case P_BOTTOM_FAR:
+			return face == F_BOTTOM ? rubiks[F_BOTTOM][2][1] : rubiks[F_FAR][2][1];
+	}
+	
+	abort();
+}
+
+Color RubiksState::getCornerColor(CornerPosition cornerPos, Face face) const {
+	switch (cornerPos) {
+		case P_TOP_LEFT_NEAR:
+			switch (face) {
+				case F_TOP: return rubiks[F_TOP][2][0];
+				case F_LEFT: return rubiks[F_LEFT][0][2];
+				case F_NEAR: return rubiks[F_NEAR][0][0];
+				default: abort();
+			}
+		case P_TOP_RIGHT_NEAR:
+			switch (face) {
+				case F_TOP: return rubiks[F_TOP][2][2];
+				case F_RIGHT: return rubiks[F_RIGHT][0][0];
+				case F_NEAR: return rubiks[F_NEAR][0][2];
+				default: abort();
+			}
+		case P_TOP_LEFT_FAR:
+			switch (face) {
+				case F_TOP: return rubiks[F_TOP][0][0];
+				case F_LEFT: return rubiks[F_LEFT][0][0];
+				case F_FAR: return rubiks[F_FAR][0][2];
+				default: abort();
+			}
+		case P_TOP_RIGHT_FAR:
+			switch (face) {
+				case F_TOP: return rubiks[F_TOP][0][2];
+				case F_RIGHT: return rubiks[F_RIGHT][0][2];
+				case F_FAR: return rubiks[F_FAR][0][0];
+				default: abort();
+			}
+	
+		case P_BOTTOM_LEFT_NEAR:
+			switch (face) {
+				case F_BOTTOM: return rubiks[F_BOTTOM][0][0];
+				case F_LEFT: return rubiks[F_LEFT][2][2];
+				case F_NEAR: return rubiks[F_NEAR][2][0];
+				default: abort();
+			}
+		case P_BOTTOM_RIGHT_NEAR:
+			switch (face) {
+				case F_BOTTOM: return rubiks[F_BOTTOM][0][2];
+				case F_RIGHT: return rubiks[F_RIGHT][2][0];
+				case F_NEAR: return rubiks[F_NEAR][2][2];
+				default: abort();
+			}
+		case P_BOTTOM_LEFT_FAR:
+			switch (face) {
+				case F_BOTTOM: return rubiks[F_BOTTOM][2][0];
+				case F_LEFT: return rubiks[F_LEFT][2][0];
+				case F_FAR: return rubiks[F_FAR][2][2];
+				default: abort();
+			}
+		case P_BOTTOM_RIGHT_FAR:
+			switch (face) {
+				case F_BOTTOM: return rubiks[F_BOTTOM][2][2];
+				case F_RIGHT: return rubiks[F_RIGHT][2][2];
+				case F_FAR: return rubiks[F_FAR][2][0];
+				default: abort();
+			}
+	}
+	
+	abort();
+}
+
+// check position and orientation
+bool RubiksState::isEdgeCorrect(EdgePosition pos) const {
+	switch (pos) {
+		case P_TOP_LEFT:
+			return rubiks[F_TOP][1][0] == FACE_COLOR_MAP[F_TOP] && rubiks[F_LEFT][0][1] == FACE_COLOR_MAP[F_LEFT];
+		case P_TOP_RIGHT:
+			return rubiks[F_TOP][1][2] == FACE_COLOR_MAP[F_TOP] && rubiks[F_RIGHT][0][1] == FACE_COLOR_MAP[F_RIGHT];
+		case P_TOP_NEAR:
+			return rubiks[F_TOP][2][1] == FACE_COLOR_MAP[F_TOP] && rubiks[F_NEAR][0][1] == FACE_COLOR_MAP[F_NEAR];
+		case P_TOP_FAR:
+			return rubiks[F_TOP][0][1] == FACE_COLOR_MAP[F_TOP] && rubiks[F_FAR][0][1] == FACE_COLOR_MAP[F_FAR];
+	
+		case P_LEFT_NEAR:
+			return rubiks[F_LEFT][1][2] == FACE_COLOR_MAP[F_LEFT] && rubiks[F_NEAR][1][0] == FACE_COLOR_MAP[F_NEAR];
+		case P_RIGHT_NEAR:
+			return rubiks[F_RIGHT][1][0] == FACE_COLOR_MAP[F_RIGHT] && rubiks[F_NEAR][1][2] == FACE_COLOR_MAP[F_NEAR];
+		case P_RIGHT_FAR:
+			return rubiks[F_RIGHT][1][2] == FACE_COLOR_MAP[F_RIGHT] && rubiks[F_FAR][1][0] == FACE_COLOR_MAP[F_FAR];
+		case P_LEFT_FAR:
+			return rubiks[F_LEFT][1][0] == FACE_COLOR_MAP[F_LEFT] && rubiks[F_FAR][1][2] == FACE_COLOR_MAP[F_FAR];
+	
+		case P_BOTTOM_LEFT:
+			return rubiks[F_BOTTOM][1][0] == FACE_COLOR_MAP[F_BOTTOM] && rubiks[F_LEFT][2][1] == FACE_COLOR_MAP[F_LEFT];
+		case P_BOTTOM_RIGHT:
+			return rubiks[F_BOTTOM][1][2] == FACE_COLOR_MAP[F_BOTTOM] && rubiks[F_RIGHT][2][1] == FACE_COLOR_MAP[F_RIGHT];
+		case P_BOTTOM_NEAR:
+			return rubiks[F_BOTTOM][0][1] == FACE_COLOR_MAP[F_BOTTOM] && rubiks[F_NEAR][2][1] == FACE_COLOR_MAP[F_NEAR];
+		case P_BOTTOM_FAR:
+			return rubiks[F_BOTTOM][2][1] == FACE_COLOR_MAP[F_BOTTOM] && rubiks[F_FAR][2][1] == FACE_COLOR_MAP[F_FAR];
+	}
+	
+	abort();
+}
+
+// check only position
+bool RubiksState::isEdgePosCorrect(EdgePosition pos) const {
+	return getEdge(pos) == EDGE_FROM_POS_MAP[pos];
+}
+
+// check position and orientation
+bool RubiksState::isCornerCorrect(CornerPosition pos) const {
+	switch (pos) {
+		case P_TOP_LEFT_NEAR:
+			return rubiks[F_TOP][2][0] == FACE_COLOR_MAP[F_TOP] && rubiks[F_LEFT][0][2] == FACE_COLOR_MAP[F_LEFT] && rubiks[F_NEAR][0][0] == FACE_COLOR_MAP[F_NEAR];
+		case P_TOP_RIGHT_NEAR:
+			return rubiks[F_TOP][2][2] == FACE_COLOR_MAP[F_TOP] && rubiks[F_RIGHT][0][0] == FACE_COLOR_MAP[F_RIGHT] && rubiks[F_NEAR][0][2] == FACE_COLOR_MAP[F_NEAR];
+		case P_TOP_LEFT_FAR:
+			return rubiks[F_TOP][0][0] == FACE_COLOR_MAP[F_TOP] && rubiks[F_LEFT][0][0] == FACE_COLOR_MAP[F_LEFT] && rubiks[F_FAR][0][2] == FACE_COLOR_MAP[F_FAR];
+		case P_TOP_RIGHT_FAR:
+			return rubiks[F_TOP][0][2] == FACE_COLOR_MAP[F_TOP] && rubiks[F_RIGHT][0][2] == FACE_COLOR_MAP[F_RIGHT] && rubiks[F_FAR][0][0] == FACE_COLOR_MAP[F_FAR];
+	
+		case P_BOTTOM_LEFT_NEAR:
+			return rubiks[F_BOTTOM][0][0] == FACE_COLOR_MAP[F_BOTTOM] && rubiks[F_LEFT][2][2] == FACE_COLOR_MAP[F_LEFT] && rubiks[F_NEAR][2][0] == FACE_COLOR_MAP[F_NEAR];
+		case P_BOTTOM_RIGHT_NEAR:
+			return rubiks[F_BOTTOM][0][2] == FACE_COLOR_MAP[F_BOTTOM] && rubiks[F_RIGHT][2][0] == FACE_COLOR_MAP[F_RIGHT] && rubiks[F_NEAR][2][2] == FACE_COLOR_MAP[F_NEAR];
+		case P_BOTTOM_LEFT_FAR:
+			return rubiks[F_BOTTOM][2][0] == FACE_COLOR_MAP[F_BOTTOM] && rubiks[F_LEFT][2][0] == FACE_COLOR_MAP[F_LEFT] && rubiks[F_FAR][2][2] == FACE_COLOR_MAP[F_FAR];
+		case P_BOTTOM_RIGHT_FAR:
+			return rubiks[F_BOTTOM][2][2] == FACE_COLOR_MAP[F_BOTTOM] && rubiks[F_RIGHT][2][2] == FACE_COLOR_MAP[F_RIGHT] && rubiks[F_FAR][2][0] == FACE_COLOR_MAP[F_FAR];
+	}
+	
+	abort();
+}
+
+// check only position
+bool RubiksState::isCornerPosCorrect(CornerPosition pos) const {
+	return getCorner(pos) == CORNER_FROM_POS_MAP[pos];
+}
+
+/*unsigned int RubiksState::heuristicDist() const {
 	unsigned int dist = 1000;
 	
 	// check corners
@@ -55,35 +296,89 @@ unsigned int RubiksState::heuristicDist() const {
 	if (rubiks[F_FAR][2][1] == FACE_COLOR_MAP[F_FAR] && rubiks[F_BOTTOM][2][1] == FACE_COLOR_MAP[F_BOTTOM]) dist -= 50;
 	if (rubiks[F_BOTTOM][0][1] == FACE_COLOR_MAP[F_BOTTOM] && rubiks[F_NEAR][1][2] == FACE_COLOR_MAP[F_NEAR]) dist -= 50;
 	
-	if (dist > 1000) abort();
+	return dist;
+}*/
+
+unsigned int RubiksState::heuristicDist() const {
+	unsigned int dist = 1000;
 	
-	/*unsigned int dist = 2400;
+	Color topColor = FACE_COLOR_MAP[F_TOP];
+	Color bottomColor = FACE_COLOR_MAP[F_BOTTOM];
+	Color nearColor = FACE_COLOR_MAP[F_NEAR];
+	Color farColor = FACE_COLOR_MAP[F_FAR];
+	Color leftColor = FACE_COLOR_MAP[F_LEFT];
+	Color rightColor = FACE_COLOR_MAP[F_RIGHT];
 	
-	for (unsigned int f = 0; f < F_COUNT; ++f) {
-		Color c = FACE_COLOR_MAP[f];
-		
-		for (unsigned int i = 0; i < 3; i += 2) {
-			if (rubiks[f][i][0] == rubiks[f][i][1] && rubiks[f][i][2]) {
-				if (rubiks[f][i][0] == c) dist -= 100;
-				else dist -= 50;
-			}
-		}
-		
-		for (unsigned int j = 0; j < 3; j += 2) {
-			if (rubiks[f][0][j] == rubiks[f][1][j] && rubiks[f][2][j]) {
-				if (rubiks[f][0][j] == c) dist -= 100;
-				else dist -= 50;
-			}
-		}
-	}
+	// check top face edges
+	unsigned int fixed = 0;
+	if (rubiks[F_TOP][0][1] == topColor && rubiks[F_FAR][0][1] == farColor) ++fixed;
+	if (rubiks[F_TOP][1][0] == topColor && rubiks[F_LEFT][0][1] == leftColor) ++fixed;
+	if (rubiks[F_TOP][1][2] == topColor && rubiks[F_RIGHT][0][1] == rightColor) ++fixed;
+	if (rubiks[F_TOP][2][1] == topColor && rubiks[F_NEAR][0][1] == nearColor) ++fixed;
 	
-	if (dist > 2400) abort();*/
+	dist -= fixed * 50;
+	if (fixed < 4)
+		return dist;
+	
+	// check top face corners
+	fixed = 0;
+	if (rubiks[F_TOP][0][0] == topColor && rubiks[F_LEFT][0][0] == leftColor && rubiks[F_FAR][0][2] == farColor) ++fixed;
+	if (rubiks[F_TOP][0][2] == topColor && rubiks[F_RIGHT][0][2] == rightColor && rubiks[F_FAR][0][0] == farColor) ++fixed;
+	if (rubiks[F_TOP][2][0] == topColor && rubiks[F_LEFT][0][2] == leftColor && rubiks[F_NEAR][0][0] == nearColor) ++fixed;
+	if (rubiks[F_TOP][2][2] == topColor && rubiks[F_RIGHT][0][0] == rightColor && rubiks[F_NEAR][0][2] == nearColor) ++fixed;
+	
+	dist -= fixed * 50;
+	if (fixed < 4)
+		return dist;
+	
+	// check middle corners
+	fixed = 0;
+	if (rubiks[F_NEAR][1][0] == nearColor && rubiks[F_LEFT][1][2] == leftColor) ++fixed;
+	if (rubiks[F_NEAR][1][2] == nearColor && rubiks[F_RIGHT][1][0] == rightColor) ++fixed;
+	if (rubiks[F_FAR][1][0] == farColor && rubiks[F_RIGHT][1][2] == rightColor) ++fixed;
+	if (rubiks[F_FAR][1][2] == farColor && rubiks[F_LEFT][1][0] == leftColor) ++fixed;
+	
+	dist -= fixed * 50;
+	if (fixed < 4)
+		return dist;
+	
+	// check bottom edges
+	fixed = 0;
+	if (rubiks[F_NEAR][2][1] == nearColor && rubiks[F_BOTTOM][0][1] == bottomColor) ++fixed;
+	if (rubiks[F_LEFT][2][1] == leftColor && rubiks[F_BOTTOM][1][0] == bottomColor) ++fixed;
+	if (rubiks[F_RIGHT][2][1] == rightColor && rubiks[F_BOTTOM][1][2] == bottomColor) ++fixed;
+	if (rubiks[F_FAR][2][1] == farColor && rubiks[F_BOTTOM][2][1] == bottomColor) ++fixed;
+	
+	dist -= fixed * 50;
+	if (fixed < 4)
+		return dist;
+	
+	// check bottom corners
+	fixed = 0;
+	if (rubiks[F_BOTTOM][0][0] == bottomColor && rubiks[F_NEAR][2][0] == nearColor && rubiks[F_LEFT][2][2] == leftColor) ++fixed;
+	if (rubiks[F_BOTTOM][0][2] == bottomColor && rubiks[F_NEAR][2][2] == nearColor && rubiks[F_RIGHT][2][0] == rightColor) ++fixed;
+	if (rubiks[F_BOTTOM][2][0] == bottomColor && rubiks[F_FAR][2][2] == farColor && rubiks[F_LEFT][2][0] == leftColor) ++fixed;
+	if (rubiks[F_BOTTOM][2][2] == bottomColor && rubiks[F_FAR][2][0] == farColor && rubiks[F_RIGHT][2][2] == rightColor) ++fixed;
+	
+	dist -= fixed * 50;
+	
+	if (dist > 1000)
+		abort();
 	
 	return dist;
 }
 
 void RubiksState::setColor(Color c, Face f, unsigned int i, unsigned int j) {
 	rubiks[f][i][j] = c;
+}
+
+RubiksState RubiksState::rotate(Rotation r, unsigned int times) const {
+	RubiksState state = *this;
+	
+	for (unsigned int i = 0; i < times; ++i)
+		state = rotate(r);
+	
+	return state;
 }
 
 RubiksState RubiksState::rotate(Rotation r) const {
