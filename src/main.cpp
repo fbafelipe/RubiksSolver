@@ -10,10 +10,6 @@
 #include <cstdlib>
 
 
-#include <cassert>
-#include "RubiksGenerator.h"
-
-
 int main(int argc, char *argv[]) {
 	RubiksState rubiks;
 	
