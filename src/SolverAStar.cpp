@@ -11,9 +11,7 @@ typedef std::map<RubiksState, NodeData> NodeDataMap;
 typedef std::pair<RubiksState, NodeData> NodeDataPair;
 
 
-static const unsigned int MOVE_COST = 100;
-
-static unsigned int closest = 1000000000;
+static const unsigned int MOVE_COST = 1;
 
 
 static void reconstructPath(RotationList & solution, const NodeDataMap & nodeDataMap, NodeData *completeNodeData);
@@ -23,6 +21,7 @@ bool solveAStar(RotationList & solution, const RubiksState & startingRubiks) {
 	NodeHeap openset;
 	
 	const unsigned int sourceValue = startingRubiks.heuristicDist();
+	unsigned int closest = 1000000000;
 	
 	NodeDataMap::iterator sourceIt = nodeDataMap.insert(NodeDataPair(startingRubiks, NodeData(startingRubiks, NULL, R_COUNT, 0, sourceValue))).first;
 	openset.insert(&sourceIt->second);
@@ -38,7 +37,17 @@ bool solveAStar(RotationList & solution, const RubiksState & startingRubiks) {
 		openset.popTop();
 		nodeData->closed = true;
 		
+		Rotation comeFromInverse = INVERSE_ROTATION[nodeData->cameFromRotation];
+		Rotation tripleRotation = R_COUNT;
+		if (nodeData->cameFrom != NULL && nodeData->cameFrom->cameFrom != NULL
+					&& nodeData->cameFrom->cameFromRotation == nodeData->cameFrom->cameFrom->cameFromRotation) {
+			tripleRotation = nodeData->cameFrom->cameFromRotation;
+		}
+		
 		for (Rotation r = (Rotation)0; r < R_COUNT; r = (Rotation)(r+1)) {
+			if (r == comeFromInverse || r == tripleRotation)
+				continue;
+			
 			RubiksState t = nodeData->rubiksState.rotate(r);
 			
 			NodeDataMap::iterator tDataIt = nodeDataMap.find(t);
@@ -50,7 +59,7 @@ bool solveAStar(RotationList & solution, const RubiksState & startingRubiks) {
 			if (tDataIt == nodeDataMap.end()) {
 				if (hVal < closest) {
 					closest = hVal;
-					std::cout << "Closest: " << closest << " (" << (tentativeGScore / MOVE_COST) << ", " << nodeDataMap.size() << " " << openset.getVector().size() << ")\n";
+					std::cout << "Closest: " << closest << " (" << tentativeGScore << ", " << nodeDataMap.size() << " " << openset.getVector().size() << ")\n";
 					std::cout << sizeof(NodeData) << "\n";
 					std::cout << t << "\n\n\n--------------------------------------------------------------\n\n";
 				}

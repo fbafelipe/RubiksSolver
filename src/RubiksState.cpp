@@ -2,6 +2,7 @@
 
 #include "Util.h"
 
+#include <cassert>
 #include <cstdlib>
 
 
@@ -266,6 +267,73 @@ bool RubiksState::isCornerPosCorrect(CornerPosition pos) const {
 	return getCorner(pos) == CORNER_FROM_POS_MAP[pos];
 }
 
+unsigned int RubiksState::heuristicDist() const {
+	unsigned int dist = 720;
+	
+	if (rubiks[F_TOP][2][0] == rubiks[F_TOP][2][1] && rubiks[F_NEAR][0][0] == rubiks[F_NEAR][0][1]) dist -= 10;
+	if (rubiks[F_TOP][2][1] == rubiks[F_TOP][2][2] && rubiks[F_NEAR][0][1] == rubiks[F_NEAR][0][2]) dist -= 10;
+	
+	if (rubiks[F_TOP][0][0] == rubiks[F_TOP][1][0] && rubiks[F_LEFT][0][0] == rubiks[F_LEFT][0][1]) dist -= 10;
+	if (rubiks[F_TOP][1][0] == rubiks[F_TOP][2][0] && rubiks[F_LEFT][0][1] == rubiks[F_LEFT][0][2]) dist -= 10;
+	
+	if (rubiks[F_TOP][0][2] == rubiks[F_TOP][1][2] && rubiks[F_RIGHT][0][2] == rubiks[F_RIGHT][0][1]) dist -= 10;
+	if (rubiks[F_TOP][1][2] == rubiks[F_TOP][2][2] && rubiks[F_RIGHT][0][1] == rubiks[F_RIGHT][0][0]) dist -= 10;
+	
+	if (rubiks[F_TOP][0][0] == rubiks[F_TOP][0][1] && rubiks[F_FAR][0][2] == rubiks[F_FAR][0][1]) dist -= 10;
+	if (rubiks[F_TOP][0][1] == rubiks[F_TOP][0][2] && rubiks[F_FAR][0][1] == rubiks[F_FAR][0][0]) dist -= 10;
+	
+	if (rubiks[F_BOTTOM][0][0] == rubiks[F_BOTTOM][0][1] && rubiks[F_NEAR][2][0] == rubiks[F_NEAR][2][1]) dist -= 10;
+	if (rubiks[F_BOTTOM][0][1] == rubiks[F_BOTTOM][0][2] && rubiks[F_NEAR][2][1] == rubiks[F_NEAR][2][2]) dist -= 10;
+	
+	if (rubiks[F_BOTTOM][0][0] == rubiks[F_BOTTOM][1][0] && rubiks[F_LEFT][2][2] == rubiks[F_LEFT][2][1]) dist -= 10;
+	if (rubiks[F_BOTTOM][1][0] == rubiks[F_BOTTOM][2][0] && rubiks[F_LEFT][2][1] == rubiks[F_LEFT][2][0]) dist -= 10;
+	
+	if (rubiks[F_BOTTOM][0][2] == rubiks[F_BOTTOM][1][2] && rubiks[F_RIGHT][2][0] == rubiks[F_RIGHT][2][1]) dist -= 10;
+	if (rubiks[F_BOTTOM][1][2] == rubiks[F_BOTTOM][2][2] && rubiks[F_RIGHT][2][1] == rubiks[F_RIGHT][2][2]) dist -= 10;
+	
+	Face sequence[4] = {F_NEAR, F_RIGHT, F_FAR, F_LEFT};
+	for (unsigned int i = 0; i < 4; ++i) {
+		Face f1 = sequence[i];
+		Face f2 = sequence[(i + 3) % 4];
+		
+		if (rubiks[f1][0][0] == rubiks[f1][1][0] && rubiks[f2][0][2] == rubiks[f2][1][2]) dist -= 10;
+		if (rubiks[f1][1][0] == rubiks[f1][2][0] && rubiks[f2][1][2] == rubiks[f2][2][2]) dist -= 10;
+	}
+	
+	// middle
+	for (unsigned int f = 0; f < F_COUNT; ++f) {
+		if (rubiks[f][0][1] == rubiks[f][1][1]) dist -= 10;
+		if (rubiks[f][1][2] == rubiks[f][1][1]) dist -= 10;
+		if (rubiks[f][2][1] == rubiks[f][1][1]) dist -= 10;
+	}
+	
+	assert(dist <= 720);
+	return dist;
+}
+
+/*unsigned int RubiksState::heuristicDist() const {
+	unsigned int dist = 720;
+	
+	for (unsigned int f = 0; f < F_COUNT; ++f) {
+		for (unsigned int i = 0; i < 3; ++i) {
+			for (unsigned int j = 0; j < 3; ++j) {
+				if (j < 2) {
+					if (rubiks[f][i][j] == rubiks[f][i][j+1])
+						dist -= 10;
+				}
+				
+				if (i < 2) {
+					if (rubiks[f][i][j] == rubiks[f][i+1][j])
+						dist -= 10;
+				}
+			}
+		}
+	}
+	
+	assert(dist <= 720);
+	return dist;
+}*/
+
 /*unsigned int RubiksState::heuristicDist() const {
 	unsigned int dist = 1000;
 	
@@ -299,7 +367,7 @@ bool RubiksState::isCornerPosCorrect(CornerPosition pos) const {
 	return dist;
 }*/
 
-unsigned int RubiksState::heuristicDist() const {
+/*unsigned int RubiksState::heuristicDist() const {
 	unsigned int dist = 1000;
 	
 	Color topColor = FACE_COLOR_MAP[F_TOP];
@@ -366,7 +434,7 @@ unsigned int RubiksState::heuristicDist() const {
 		abort();
 	
 	return dist;
-}
+}*/
 
 void RubiksState::setColor(Color c, Face f, unsigned int i, unsigned int j) {
 	rubiks[f][i][j] = c;
