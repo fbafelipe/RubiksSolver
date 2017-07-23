@@ -11,9 +11,9 @@ public:
 	RubiksState();
 	
 	bool isComplete() const;
-	unsigned int heuristicDist() const;
 	
 	void setColor(Color c, Face f, unsigned int i, unsigned int j);
+	Color getColor(Face f, unsigned int i, unsigned int j) const;
 	
 	Edge getEdge(EdgePosition edgePos) const;
 	Corner getCorner(CornerPosition cornerPos) const;

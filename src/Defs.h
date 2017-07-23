@@ -162,7 +162,7 @@ enum Rotation {
 	R_COUNT
 };
 
-const Rotation INVERSE_ROTATION[R_COUNT] = {
+const Rotation INVERSE_ROTATION[R_COUNT + 1] = {
 	R_LEFT_INVERSE,
 	R_RIGHT_INVERSE,
 	R_TOP_INVERSE,
@@ -175,7 +175,9 @@ const Rotation INVERSE_ROTATION[R_COUNT] = {
 	R_TOP,
 	R_BOTTOM,
 	R_NEAR,
-	R_FAR
+	R_FAR,
+	
+	R_COUNT
 };
 
 #endif

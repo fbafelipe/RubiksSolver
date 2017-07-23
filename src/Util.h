@@ -3,8 +3,11 @@
 
 #include "Defs.h"
 
+#include <stdint.h>
 #include <ostream>
 
+
+uint64_t currentTime();
 
 Face colorToFace(Color color);
 

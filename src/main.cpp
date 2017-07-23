@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <cassert>
 
 
 int main(int argc, char *argv[]) {
@@ -19,8 +20,8 @@ int main(int argc, char *argv[]) {
 		readRubiksFromStdin(rubiks);
 	
 	RotationList solution;
-	//if (!solveAStar(solution, rubiks)) {
-	if (!solveAlgorithm(solution, rubiks)) {
+	if (!solveAStar(solution, rubiks)) {
+	//if (!solveAlgorithm(solution, rubiks)) {
 		std::cerr << "Solution not found." << std::endl;
 		return -1;
 	}
@@ -31,9 +32,13 @@ int main(int argc, char *argv[]) {
 	std::cout << "Solution found with " << finalSolution.size() << " moves. (optimized from " << solution.size() << ")" << std::endl;
 	std::cout << "Look at red face, with blue top, then rotate this sequence:\n" << std::endl;
 	
-	for (RotationList::const_iterator it = finalSolution.begin(); it != finalSolution.end(); ++it)
+	for (RotationList::const_iterator it = finalSolution.begin(); it != finalSolution.end(); ++it) {
 		std::cout << *it << " ";
+		rubiks = rubiks.rotate(*it);
+	}
 	std::cout << std::endl;
+	
+	assert(rubiks.isComplete());
 	
 	return 0;
 }

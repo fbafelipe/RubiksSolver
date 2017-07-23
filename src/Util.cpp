@@ -2,12 +2,19 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <sys/time.h>
 
 
 static void findSideSequence(Face rotationAxis, Face *sequence);
 static void setupFaceSequence(Face *faces, Face f1, Face f2, Face f3, Face f4);
 static Rotation faceToRotation(Face face, bool inverse);
 
+
+uint64_t currentTime() {
+	timeval t;
+    gettimeofday(&t, 0);
+    return t.tv_usec/1000 + t.tv_sec * 1000LL;
+}
 
 Face colorToFace(Color color) {
 	switch (color) {
